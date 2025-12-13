@@ -59,18 +59,25 @@ const CREDENTIAL_SETUP_INSTRUCTIONS: Record<string, string> = {
 };
 
 export function analyzeN8nFlow(jsonString: string): FlowAnalysis {
+  const trimmedInput = jsonString.trim();
+  
+  if (!trimmedInput) {
+    throw new Error("No JSON provided. Please paste your n8n flow JSON.");
+  }
+
   let flowData: unknown;
 
   try {
-    flowData = JSON.parse(jsonString);
-  } catch {
-    throw new Error("Invalid JSON format. Please ensure the pasted JSON is valid.");
+    flowData = JSON.parse(trimmedInput);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    throw new Error(`Invalid JSON format: ${errorMessage}. Please ensure the pasted JSON is valid.`);
   }
 
   const typedFlowData = flowData as Record<string, unknown>;
   if (!typedFlowData.nodes || !Array.isArray(typedFlowData.nodes)) {
     throw new Error(
-      "Invalid n8n flow format. Expected 'nodes' array in the JSON."
+      "Invalid n8n flow format. Expected 'nodes' array in the JSON. The flow must have a 'nodes' property containing an array of node objects."
     );
   }
 

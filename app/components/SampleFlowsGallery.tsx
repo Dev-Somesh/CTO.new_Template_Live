@@ -14,6 +14,7 @@ export default function SampleFlowsGallery({ onFlowSelected, onBack }: SampleFlo
   const [selectedDifficulty, setSelectedDifficulty] = useState<string | null>(null);
   const [expandedFlow, setExpandedFlow] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const filteredFlows = SAMPLE_FLOWS.filter((flow) => {
     const matchesCategory = !selectedCategory || flow.category === selectedCategory;
@@ -26,10 +27,13 @@ export default function SampleFlowsGallery({ onFlowSelected, onBack }: SampleFlo
 
   const handleSelectFlow = async (flow: SampleFlow) => {
     setLoading(true);
+    setError(null);
     try {
       const analysis = analyzeN8nFlow(flow.json);
       onFlowSelected(analysis);
     } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to analyze flow';
+      setError(message);
       console.error('Failed to analyze flow:', err);
     } finally {
       setLoading(false);
@@ -68,6 +72,14 @@ export default function SampleFlowsGallery({ onFlowSelected, onBack }: SampleFlo
             detailed analysis, node information, and configuration requirements.
           </p>
         </div>
+
+        {error && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-800 rounded-lg p-4 mb-8">
+            <p className="text-red-800 dark:text-red-300 text-sm">
+              <strong>Error:</strong> {error}
+            </p>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-8">
           <div>
