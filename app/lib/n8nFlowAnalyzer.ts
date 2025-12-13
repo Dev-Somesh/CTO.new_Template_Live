@@ -75,13 +75,42 @@ export function analyzeN8nFlow(jsonString: string): FlowAnalysis {
   }
 
   const typedFlowData = flowData as Record<string, unknown>;
-  if (!typedFlowData.nodes || !Array.isArray(typedFlowData.nodes)) {
+  
+  // Handle different n8n flow formats
+  let nodesArray: unknown[] | undefined;
+  
+  // Try direct nodes property
+  if (Array.isArray(typedFlowData.nodes)) {
+    nodesArray = typedFlowData.nodes;
+  }
+  // Try nested workflow.nodes
+  else if (
+    typedFlowData.workflow &&
+    typeof typedFlowData.workflow === "object"
+  ) {
+    const workflow = typedFlowData.workflow as Record<string, unknown>;
+    if (Array.isArray(workflow.nodes)) {
+      nodesArray = workflow.nodes;
+    }
+  }
+  // Try nested data.nodes
+  else if (
+    typedFlowData.data &&
+    typeof typedFlowData.data === "object"
+  ) {
+    const data = typedFlowData.data as Record<string, unknown>;
+    if (Array.isArray(data.nodes)) {
+      nodesArray = data.nodes;
+    }
+  }
+  
+  if (!nodesArray) {
     throw new Error(
-      "Invalid n8n flow format. Expected 'nodes' array in the JSON. The flow must have a 'nodes' property containing an array of node objects."
+      "Invalid n8n flow format. Expected 'nodes' array in the JSON. The flow must have a 'nodes' property containing an array of node objects. Supported formats: {nodes: [...]}, {workflow: {nodes: [...]}}, or {data: {nodes: [...]}}"
     );
   }
 
-  const nodes: N8nNode[] = typedFlowData.nodes.map((node: unknown) => {
+  const nodes: N8nNode[] = nodesArray.map((node: unknown) => {
     const typedNode = node as Record<string, unknown>;
     return {
       id: typedNode.id as string,
@@ -95,8 +124,32 @@ export function analyzeN8nFlow(jsonString: string): FlowAnalysis {
   });
 
   const connections: N8nConnection[] = [];
+  
+  // Try to find connections object in different locations
+  let connectionsObj: Record<string, unknown> | undefined;
+  
   if (typedFlowData.connections && typeof typedFlowData.connections === "object") {
-    Object.entries(typedFlowData.connections).forEach(([sourceId, targets]) => {
+    connectionsObj = typedFlowData.connections as Record<string, unknown>;
+  } else if (
+    typedFlowData.workflow &&
+    typeof typedFlowData.workflow === "object"
+  ) {
+    const workflow = typedFlowData.workflow as Record<string, unknown>;
+    if (workflow.connections && typeof workflow.connections === "object") {
+      connectionsObj = workflow.connections as Record<string, unknown>;
+    }
+  } else if (
+    typedFlowData.data &&
+    typeof typedFlowData.data === "object"
+  ) {
+    const data = typedFlowData.data as Record<string, unknown>;
+    if (data.connections && typeof data.connections === "object") {
+      connectionsObj = data.connections as Record<string, unknown>;
+    }
+  }
+  
+  if (connectionsObj) {
+    Object.entries(connectionsObj).forEach(([sourceId, targets]) => {
       if (targets && typeof targets === "object") {
         Object.entries(targets).forEach(([connectionType, targetArray]) => {
           if (Array.isArray(targetArray)) {
