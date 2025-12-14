@@ -50,28 +50,31 @@ export default function FlowUploader({ onFlowAnalyzed, onBack }: FlowUploaderPro
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black">
-      <div className="max-w-4xl mx-auto px-6 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="max-w-6xl mx-auto px-6 py-12">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-2 text-orange-500 hover:text-orange-600 mb-8 font-medium"
+          className="inline-flex items-center gap-2 text-orange-400 hover:text-orange-300 mb-8 font-medium transition-colors"
         >
-          ← Back to Home
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 12H5m7 7l-7-7 7-7" />
+          </svg>
+          Back to Home
         </button>
 
         <div className="mb-12">
-          <h1 className="text-3xl font-bold text-black dark:text-white mb-4">
+          <h1 className="text-4xl font-bold text-white mb-4">
             Upload Your n8n Flow
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-slate-300">
             Paste the JSON of your n8n workflow here. The analyzer will extract nodes, requirements,
             and provide step-by-step configuration guidance.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="space-y-4">
-            <div className="rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-4">
+            <div className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-md overflow-hidden">
               <textarea
                 value={jsonInput}
                 onChange={(e) => {
@@ -79,7 +82,7 @@ export default function FlowUploader({ onFlowAnalyzed, onBack }: FlowUploaderPro
                   setError(null);
                 }}
                 placeholder="Paste your n8n flow JSON here..."
-                className="w-full h-96 p-4 bg-white dark:bg-gray-900 text-black dark:text-white resize-none focus:outline-none font-mono text-sm"
+                className="w-full h-96 p-4 bg-transparent text-white resize-none focus:outline-none font-mono text-sm placeholder-slate-400"
               />
             </div>
 
@@ -87,14 +90,18 @@ export default function FlowUploader({ onFlowAnalyzed, onBack }: FlowUploaderPro
               <button
                 onClick={handleAnalyze}
                 disabled={loading || !jsonInput.trim()}
-                className="flex-1 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition"
+                className="flex-1 group relative px-6 py-3 rounded-lg font-semibold text-white overflow-hidden transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Analyzing...' : 'Analyze Flow'}
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-red-500" />
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-pink-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <span className="relative">
+                  {loading ? 'Analyzing...' : 'Analyze Flow'}
+                </span>
               </button>
 
-              <label className="flex items-center justify-center gap-2 flex-1 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900 transition">
-                <span className="text-gray-700 dark:text-gray-300 font-semibold">
-                  Or Upload File
+              <label className="flex items-center justify-center gap-2 flex-1 border border-white/20 rounded-lg cursor-pointer hover:bg-white/10 hover:border-white/30 transition-all bg-white/5">
+                <span className="text-white font-semibold">
+                  Upload File
                 </span>
                 <input
                   type="file"
@@ -106,8 +113,8 @@ export default function FlowUploader({ onFlowAnalyzed, onBack }: FlowUploaderPro
             </div>
 
             {error && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-800 rounded-lg p-4">
-                <p className="text-red-800 dark:text-red-300 text-sm">
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 animate-in">
+                <p className="text-red-400 text-sm">
                   <strong>Error:</strong> {error}
                 </p>
               </div>
@@ -115,11 +122,11 @@ export default function FlowUploader({ onFlowAnalyzed, onBack }: FlowUploaderPro
           </div>
 
           <div className="space-y-6">
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
-              <h3 className="font-semibold text-blue-900 dark:text-blue-300 mb-3">
-                How to get your flow JSON
+            <div className="bg-blue-500/10 border border-blue-400/30 rounded-xl p-6 backdrop-blur-sm">
+              <h3 className="font-semibold text-blue-300 mb-3 flex items-center gap-2">
+                <span>📋</span> How to get your flow JSON
               </h3>
-              <ol className="text-sm text-blue-800 dark:text-blue-400 space-y-2 list-decimal list-inside">
+              <ol className="text-sm text-blue-200 space-y-2 list-decimal list-inside">
                 <li>Open your workflow in n8n editor</li>
                 <li>Click the menu (⋮) button</li>
                 <li>Select &quot;Download&quot; option</li>
@@ -128,11 +135,11 @@ export default function FlowUploader({ onFlowAnalyzed, onBack }: FlowUploaderPro
               </ol>
             </div>
 
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6">
-              <h3 className="font-semibold text-green-900 dark:text-green-300 mb-3">
-                What we analyze
+            <div className="bg-green-500/10 border border-green-400/30 rounded-xl p-6 backdrop-blur-sm">
+              <h3 className="font-semibold text-green-300 mb-3 flex items-center gap-2">
+                <span>✨</span> What we analyze
               </h3>
-              <ul className="text-sm text-green-800 dark:text-green-400 space-y-2">
+              <ul className="text-sm text-green-200 space-y-2">
                 <li>✓ Node types and connections</li>
                 <li>✓ Required credentials and APIs</li>
                 <li>✓ Configuration parameters</li>
@@ -141,11 +148,11 @@ export default function FlowUploader({ onFlowAnalyzed, onBack }: FlowUploaderPro
               </ul>
             </div>
 
-            <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-6">
-              <h3 className="font-semibold text-purple-900 dark:text-purple-300 mb-3">
-                Example JSON Format
+            <div className="bg-purple-500/10 border border-purple-400/30 rounded-xl p-6 backdrop-blur-sm">
+              <h3 className="font-semibold text-purple-300 mb-3 flex items-center gap-2">
+                <span>{ }</span> Example JSON Format
               </h3>
-              <code className="text-xs text-purple-800 dark:text-purple-400 block overflow-x-auto">
+              <code className="text-xs text-purple-300 block overflow-x-auto">
 {`{
   &quot;name&quot;: &quot;My Workflow&quot;,
   &quot;nodes&quot;: [...],
