@@ -1,0 +1,43 @@
+{
+  "name": "Example Webhook to Email Notification",
+  "description": "A simple workflow that receives a webhook trigger and sends an email notification",
+  "nodes": [
+    {
+      "id": "webhook_trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "parameters": {
+        "path": "webhook-example",
+        "method": "POST"
+      }
+    },
+    {
+      "id": "email_node",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSendGmail",
+      "typeVersion": 1,
+      "position": [500, 300],
+      "parameters": {
+        "toEmail": "recipient@example.com",
+        "subject": "Webhook Notification",
+        "textPlain": "You have received a webhook event: {{$json.body}}"
+      },
+      "credentials": {
+        "gmailOAuth": "my_gmail_credential"
+      }
+    }
+  ],
+  "connections": {
+    "webhook_trigger": {
+      "main": [
+        {
+          "node": "email_node",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    }
+  }
+}
